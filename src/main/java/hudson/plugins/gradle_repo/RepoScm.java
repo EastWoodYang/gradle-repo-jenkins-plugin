@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,13 +30,17 @@ import java.util.logging.Logger;
 @ExportedBean
 public class RepoScm extends SCM implements Serializable {
 
+    private static final long serialVersionUID = 6977402641248374753L;
+
     private static Logger debug = Logger.getLogger("hudson.plugins.gradle_repo.RepoScm");
 
+    public static final String PROJECT_REPO_URL = "PROJECT_REPO_URL";
+    public static final String PROJECT_BRANCH = "PROJECT_BRANCH";
 
     private final String repositoryUrl;
     private final String branch;
 
-    private GitHelper gitHelper;
+    private transient GitHelper gitHelper;
 
     private ProjectState currentState;
 
@@ -202,6 +207,13 @@ public class RepoScm extends SCM implements Serializable {
                 .append(' ')
                 .append(getBranch())
                 .toString();
+    }
+
+    @Override
+    public void buildEnvVars(AbstractBuild<?, ?> build, Map<String, String> env) {
+        super.buildEnvVars(build, env);
+        env.put(PROJECT_REPO_URL, getRepositoryUrl());
+        env.put(PROJECT_BRANCH, getBranch());
     }
 
     /**
